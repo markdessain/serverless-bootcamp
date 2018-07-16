@@ -20,5 +20,3 @@ __pycache__
 
 # Serverless directories
 .serverless
-
-!setgame/client/dist
