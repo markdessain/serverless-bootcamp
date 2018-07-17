@@ -1,4 +1,7 @@
-"scripts": {
-  "sls": "serverless",
-  "test": "./node_modules/.bin/mocha tests/test_cases --reporter spec"
+{
+  "scripts": {
+    "sls": "serverless",
+    "test": "TEST_MODE=handler ./node_modules/.bin/mocha tests/test_cases --reporter spec",
+    "acceptance": "TEST_MODE=http ./node_modules/.bin/mocha tests/test_cases --reporter spec"
+  }
 }
