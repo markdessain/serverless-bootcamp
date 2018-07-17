@@ -36,8 +36,8 @@ functions:
           - - "https://"
             - Ref: ApiGatewayRestApi
             - ".execute-api.eu-west-1.amazonaws.com/dev/restaurants"
-      cognito_user_pool_id: eu-west-1_z9AyExIfw
-      cognito_client_id: 29oc5lf4tonbodmuhom07b1srm
+      cognito_user_pool_id: ${ssm:/workshop-node/dev/cognito_user_pool_id}
+      cognito_client_id: ${ssm:/{service-name}/dev/cognito_web_client_id}
 
   get-restaurants:
     handler: functions/get-restaurants.handler
@@ -47,7 +47,7 @@ functions:
           method: get
           authorizer: aws_iam
     environment:
-      restaurants_table: restaurants
+      restaurants_table: ${ssm:/workshop-node/dev/table_name}
   search-restaurants:
     handler: functions/search-restaurants.handler
     events:
@@ -55,16 +55,16 @@ functions:
           path: /restaurants/search
           method: post
           authorizer:
-            arn: arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/eu-west-1_z9AyExIfw
+            arn: arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/${ssm:/workshop-node/dev/cognito_user_pool_id}
     environment:
-      restaurants_table: restaurants
+      restaurants_table: ${ssm:/workshop-node/dev/table_name}
 
 resources:
   Resources:
     restaurantsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: restaurants
+        TableName: ${ssm:/workshop-node/dev/table_name}
         AttributeDefinitions:
           - AttributeName: name
             AttributeType: S
