@@ -81,10 +81,36 @@ const viaHandler = async (event, functionName) => {
   const context = {}
   const response = await handler(event, context)
   const contentType = _.get(response, 'headers.content-type', 'application/json');
-  if (response.body && contentType === 'application/json') {
+  if (_.get(response, 'body') && contentType === 'application/json') {
     response.body = JSON.parse(response.body);
   }
   return response
+}
+
+const toKinesisEvent = events => {
+  const records = events.map(event => {
+    const data = Buffer.from(JSON.stringify(event)).toString('base64')
+    return {
+      "eventID": "shardId-000000000000:49545115243490985018280067714973144582180062593244200961",
+      "eventVersion": "1.0",
+      "kinesis": {
+        "approximateArrivalTimestamp": 1428537600,
+        "partitionKey": "partitionKey-3",
+        "data": data,
+        "kinesisSchemaVersion": "1.0",
+        "sequenceNumber": "49545115243490985018280067714973144582180062593244200961"
+      },
+      "invokeIdentityArn": "arn:aws:iam::EXAMPLE",
+      "eventName": "aws:kinesis:record",
+      "eventSourceARN": "arn:aws:kinesis:EXAMPLE",
+      "eventSource": "aws:kinesis",
+      "awsRegion": "us-east-1"
+    }
+  })
+
+  return {
+    Records: records
+  }
 }
 
 const we_invoke_get_restaurants = async () => {
@@ -114,9 +140,36 @@ const we_invoke_get_index = async () => {
 
   return res
 }
+const we_invoke_place_order = async (user, restaurantName) => {
+  const body = JSON.stringify({ restaurantName })
+  const requestContext = {
+    authorizer: {
+      claims: {
+        email: `${user.username}@test.com`
+      }
+    }
+  }
+  const auth = user.idToken
+
+  const res =
+    mode === 'handler'
+      ? await viaHandler({ body, requestContext }, 'place-order')
+      : await viaHttp('orders', 'POST', { body, auth })
+
+  return res
+}
+const we_invoke_notify_restaurant = async (...events) => {
+  if (mode === 'handler') {
+    await viaHandler(toKinesisEvent(events), 'notify-restaurant')
+  } else {
+    throw new Error('not supported')
+  }
+}
 
 module.exports = {
   we_invoke_get_index,
   we_invoke_get_restaurants,
-  we_invoke_search_restaurants
+  we_invoke_search_restaurants,
+  we_invoke_place_order,
+  we_invoke_notify_restaurant
 }

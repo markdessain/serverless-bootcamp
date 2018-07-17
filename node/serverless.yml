@@ -17,9 +17,18 @@ provider:
     - Effect: Allow
       Action: execute-api:Invoke
       Resource: arn:aws:execute-api:#{AWS::Region}:#{AWS::AccountId}:*/*/GET/restaurants
+    - Effect: Allow
+      Action: kinesis:PutRecord
+      Resource:
+        Fn::GetAtt:
+          - orderEventsStream
+          - Arn
+    - Effect: Allow
+      Action: sns:Publish
+      Resource:
+        Ref: restaurantNotificationTopic
 
 plugins:
-  - serverless-offline
   - serverless-pseudo-parameters
 
 functions:
@@ -36,8 +45,14 @@ functions:
           - - "https://"
             - Ref: ApiGatewayRestApi
             - ".execute-api.eu-west-1.amazonaws.com/dev/restaurants"
+      orders_api:
+        Fn::Join:
+          - ''
+          - - "https://"
+            - Ref: ApiGatewayRestApi
+            - ".execute-api.eu-west-1.amazonaws.com/dev/orders"
       cognito_user_pool_id: ${ssm:/workshop-node/dev/cognito_user_pool_id}
-      cognito_client_id: ${ssm:/{service-name}/dev/cognito_web_client_id}
+      cognito_client_id: ${ssm:/workshop-node/dev/cognito_web_client_id}
 
   get-restaurants:
     handler: functions/get-restaurants.handler
@@ -58,6 +73,29 @@ functions:
             arn: arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/${ssm:/workshop-node/dev/cognito_user_pool_id}
     environment:
       restaurants_table: ${ssm:/workshop-node/dev/table_name}
+  place-order:
+    handler: functions/place-order.handler
+    events:
+      - http:
+          path: /orders
+          method: post
+          authorizer:
+            arn: arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/${ssm:/workshop-node/dev/cognito_user_pool_id}
+    environment:
+      order_events_stream: ${ssm:/workshop-node/dev/stream_name}
+  notify-restaurant:
+    handler: functions/notify-restaurant.handler
+    events:
+      - stream:
+          type: kinesis
+          arn:
+            Fn::GetAtt:
+              - orderEventsStream
+              - Arn
+    environment:
+      order_events_stream: ${ssm:/workshop-node/dev/stream_name}
+      restaurant_notification_topic:
+        Ref: restaurantNotificationTopic
 
 resources:
   Resources:
@@ -76,3 +114,13 @@ resources:
           WriteCapacityUnits: 1
     CognitoUserPoolMyUserPool:
       Type: AWS::Cognito::UserPool
+    orderEventsStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: ${ssm:/workshop-node/dev/stream_name}
+        ShardCount: 1
+    restaurantNotificationTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: ${ssm:/workshop-node/dev/restaurant_topic_name}
+        TopicName: ${ssm:/workshop-node/dev/restaurant_topic_name}
