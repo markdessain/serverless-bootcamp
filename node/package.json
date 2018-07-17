@@ -1,0 +1,4 @@
+"scripts": {
+  "sls": "serverless",
+  "test": "./node_modules/.bin/mocha tests/test_cases --reporter spec"
+}
