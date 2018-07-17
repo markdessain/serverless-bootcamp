@@ -3,7 +3,7 @@ import random
 import string
 import json
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb') # endpoint_url='http://localstack:4569'
 
 
 def cards():

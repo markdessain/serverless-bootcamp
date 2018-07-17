@@ -26,6 +26,7 @@ provider:
 
 plugins:
   - serverless-finch
+  - serverless-offline
 
 custom:
   client:

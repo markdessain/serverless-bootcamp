@@ -1,0 +1,14 @@
+version: '3'
+services:
+  serverless:
+    image: serverless
+    stdin_open: true
+    tty: true
+    links:
+      - localstack
+    volumes:
+      - ./:/app
+    ports:
+      - 3000:3000
+  localstack:
+    image: localstack/localstack:latest

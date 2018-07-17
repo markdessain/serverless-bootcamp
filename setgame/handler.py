@@ -41,13 +41,13 @@ def index(event, context):
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
             <script>
 
-                var endpoint = 'https://udy11c2m7j.execute-api.eu-west-1.amazonaws.com';
+                var endpoint = 'http://localhost:3000'; // https://udy11c2m7j.execute-api.eu-west-1.amazonaws.com/dev';
                 var game_id = '';
                 var selected_cards = [];
 
                 function join_game(game_id){
                     console.log('Joined Game: ' + game_id);
-                    $.get(endpoint + '/dev/join_game?game_id=' + game_id, function( data ) {
+                    $.get(endpoint + '/join_game?game_id=' + game_id, function( data ) {
                         $('#table').empty();
 
                         $.each(data['drawn'], function(index, value) {
@@ -78,8 +78,8 @@ def index(event, context):
 
                             if(selected_cards.length == 3) {
                                 console.log('selected');
-                                console.log(endpoint + '/dev/select_cards?game_id=' + game_id + '&card_1=' + selected_cards[0] + '&card_2=' + selected_cards[1] + '&card_3=' + selected_cards[2]);
-                                $.get(endpoint + '/dev/select_cards?game_id=' + game_id + '&card_1=' + selected_cards[0] + '&card_2=' + selected_cards[1] + '&card_3=' + selected_cards[2], function( data ) {
+                                console.log(endpoint + '/select_cards?game_id=' + game_id + '&card_1=' + selected_cards[0] + '&card_2=' + selected_cards[1] + '&card_3=' + selected_cards[2]);
+                                $.get(endpoint + '/select_cards?game_id=' + game_id + '&card_1=' + selected_cards[0] + '&card_2=' + selected_cards[1] + '&card_3=' + selected_cards[2], function( data ) {
                                     selected_cards = [];
                                     join_game(game_id);
                                 });
@@ -90,7 +90,7 @@ def index(event, context):
 
                 function start_game(){
                     console.log('Started Game');
-                    $.get(endpoint + '/dev/start_game', function( data ) {
+                    $.get(endpoint + '/start_game', function( data ) {
                         $('#game_id').val(data['game_id']);
                         game_id = data['game_id'];
                         join_game(data['game_id'])
@@ -109,7 +109,7 @@ def index(event, context):
 
                     $('#add_extra_cards').click(function() {
                         console.log('a');
-                        $.get(endpoint + '/dev/add_extra?game_id=' + game_id, function( data ) {
+                        $.get(endpoint + '/add_extra?game_id=' + game_id, function( data ) {
                             console.log('b');
                             join_game(game_id);
                         });
