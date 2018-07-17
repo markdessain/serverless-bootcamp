@@ -1,9 +1,11 @@
 const AWS = require('aws-sdk')
+const { REGION, STAGE } = process.env
 AWS.config.region = 'eu-west-1'
 var credentials = new AWS.SharedIniFileCredentials({profile: 'serverless_personal'});
 AWS.config.credentials = credentials;
 
 const dynamodb = new AWS.DynamoDB.DocumentClient()
+const ssm = new AWS.SSM()
 
 let restaurants = [
   {
@@ -48,15 +50,31 @@ let restaurants = [
   },
 ];
 
-let putReqs = restaurants.map(x => ({
-  PutRequest: {
-    Item: x
+const getTableName = async () => {
+  console.log('getting table name...')
+  const req = {
+    Name: `/workshop-node/${STAGE}/table_name`
   }
-}))
-
-let req = {
-  RequestItems: {
-    'restaurants': putReqs
-  }
+  const ssmResp = await ssm.getParameter(req).promise()
+  return ssmResp.Parameter.Value
 }
-dynamodb.batchWrite(req).promise().then(() => console.log("all done"))
+
+const run = async () => {
+  const tableName = await getTableName()
+
+  console.log(`table name: `, tableName)
+
+  let putReqs = restaurants.map(x => ({
+    PutRequest: {
+      Item: x
+    }
+  }))
+
+  const req = {
+    RequestItems: {}
+  }
+  req.RequestItems[tableName] = putReqs
+  await dynamodb.batchWrite(req).promise()
+}
+
+run().then(() => console.log("all done")).catch(err => console.error(err.message))

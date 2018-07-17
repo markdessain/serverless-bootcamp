@@ -21,5 +21,6 @@ module.exports.handler = async (event, context, callback) => {
     body: JSON.stringify(restaurants)
   }
 
-  callback(null, response)
+  return response
+  // callback(null, response)
 }
