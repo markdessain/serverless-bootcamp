@@ -1,5 +1,6 @@
 const _ = require('lodash')
 const { getRecords } = require('../lib/kinesis')
+const Log = require('../lib/log')
 const AWS = require('aws-sdk')
 const kinesis = new AWS.Kinesis()
 const sns = new AWS.SNS()

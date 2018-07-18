@@ -6,6 +6,8 @@ provider:
   profile: serverless_personal
   region: eu-west-1
   stage: dev
+  environment:
+    log_level: DEBUG
 
 plugins:
   - serverless-pseudo-parameters
