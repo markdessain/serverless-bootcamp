@@ -9,6 +9,7 @@ provider:
   tracing: true
   environment:
     log_level: INFO
+    STAGE: dev
   iamRoleStatements:
     - Effect: "Allow"
       Action:

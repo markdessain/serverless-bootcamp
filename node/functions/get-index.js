@@ -1,9 +1,6 @@
 const fs = require("fs")
 const Mustache = require('mustache')
-const AWSXRay = require('aws-xray-sdk-core')
-const https = process.env.LAMBDA_RUNTIME_DIR
-  ? AWSXRay.captureHTTPs(require('https'))
-  : require('https')
+const https = require('../lib/https')
 const aws4 = require('aws4')
 const URL = require('url')
 const Log = require('../lib/log')
@@ -48,7 +45,7 @@ const getRestaurants = () => {
       headers: opts.headers
     }
 
-    const req = https.request(options, res => {
+    const req = https(options, res => {
       res.on('data', buffer => {
         const body = buffer.toString('utf8')
         resolve(JSON.parse(body))
