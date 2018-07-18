@@ -3,13 +3,16 @@ const { promisify } = require('util')
 const awscred = require('awscred')
 const { REGION, STAGE } = process.env
 const AWS = require('aws-sdk')
-AWS.config.region = REGION
+AWS.config.region = 'eu-west-1'
+
+// console.log('----------')
+// console.log(process.env)
 const SSM = new AWS.SSM()
 
 let initialized = false
 
 const getParameters = async (keys) => {
-  const prefix = `/workshop-node/${STAGE}/`
+  const prefix = `/workshop-node/dev/`
   const req = {
     Names: keys.map(key => `${prefix}${key}`)
   }

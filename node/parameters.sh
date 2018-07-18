@@ -5,3 +5,6 @@ aws --profile serverless_personal --region eu-west-1 ssm put-parameter --name /w
 aws --profile serverless_personal --region eu-west-1 ssm put-parameter --name /workshop-node/dev/url --type String --value 4qkmw6oovb.execute-api.eu-west-1.amazonaws.com/dev
 aws --profile serverless_personal --region eu-west-1 ssm put-parameter --name /workshop-node/dev/stream_name --type String --value orders-dev
 aws --profile serverless_personal --region eu-west-1 ssm put-parameter --name /workshop-node/dev/restaurant_topic_name --type String --value restaurant-notification-dev
+
+aws --profile serverless_personal --region eu-west-1 ssm put-parameter --name /workshop-node/dev/restaurant_retry_topic_name --type String --value restaurant-notification-retry-dev
+aws --profile serverless_personal --region eu-west-1 ssm put-parameter --name /workshop-node/dev/restaurant_dlq_topic_name --type String --value restaurant-notification-dlq-dev
