@@ -1,4 +1,9 @@
-const AWS = require('aws-sdk')
+
+const AWSXRay = require('aws-xray-sdk-core')
+const AWS = process.env.LAMBDA_RUNTIME_DIR
+  ? AWSXRay.captureAWS(require('aws-sdk'))
+  : require('aws-sdk')
+const wrap = require('../lib/wrapper')
 const dynamodb = new AWS.DynamoDB.DocumentClient()
 
 const defaultResults = process.env.defaultResults || 8
@@ -14,7 +19,7 @@ const getRestaurants = async (count) => {
   return resp.Items
 }
 
-module.exports.handler = async (event, context, callback) => {
+module.exports.handler = wrap(async (event, context) => {
   const restaurants = await getRestaurants(defaultResults)
   const response = {
     statusCode: 200,
@@ -23,4 +28,4 @@ module.exports.handler = async (event, context, callback) => {
 
   return response
   // callback(null, response)
-}
+})

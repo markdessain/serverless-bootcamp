@@ -6,12 +6,25 @@ provider:
   profile: serverless_personal
   region: eu-west-1
   stage: dev
+  tracing: true
   environment:
-    log_level: DEBUG
+    log_level: INFO
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
 
 plugins:
   - serverless-pseudo-parameters
   - serverless-iam-roles-per-function
+  - serverless-plugin-tracing
+
+custom:
+  serverless-iam-roles-per-function:
+    defaultInherit: true
 
 functions:
   get-index:
